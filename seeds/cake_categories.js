@@ -2,9 +2,9 @@
 const cakedata = require('../seed_data/categories');
 
 exports.seed = function (knex){
-  return knex('categories')
+  return knex('cakes')
   .del()
   .then(function () {
-    return knex ('categories').insert(cakedata);
+    return knex ('cakes').insert(cakedata);
   })
 };
