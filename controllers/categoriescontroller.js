@@ -1,7 +1,7 @@
 const knex = require('knex')(require('../knexfile'));
 
 exports.index = (_req, res) => {
-    knex('categories')
+    knex('cakes')
         // .select('id', 'occasion')
         .then((data) => {
             res.status(200).json(data);

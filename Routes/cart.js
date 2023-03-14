@@ -33,17 +33,24 @@ router.post('/cart', (req, res) => {
         })
 });
 router.get('/cartdetails', (req, res) => {
-    const product_id = req.body.product_id
-    knex
-        .select('cake_id',
-            'occasion',
-            'image_url'
-        )
-        .from('cakes')
-        .where('cake_id', product_id)
-        .then((cake) => {
-            res.json(cake)
+    knex.select('cake_id')
+        .from('cart')
+        .then((rows) => {
+            // const cakeIds = rows.map(row => row.cake_id);
+            return knex.select('*')
+                .from('cakes')
+                .whereIn('cake_id', rows);
+        })
+        .then((cakes) => {
+            res.json(cakes);
+        })
+        .catch((err) => {
+            console.error(err);
+            res.status(500).send('Internal Server Error');
         });
-})
+});
+
+
+
 
 module.exports = router

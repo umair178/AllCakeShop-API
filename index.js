@@ -13,6 +13,7 @@ app.use(express.static('./Public/images'))
 app.use(express.urlencoded({extended: false}));
 
 
+
                                   //Auth code starts here
 
 
@@ -100,6 +101,8 @@ app.use(
     })
 );
 
+app.use(passport.session());
+
 passport.use(
     new GitHubStrategy(
         {
@@ -111,7 +114,7 @@ passport.use(
             console.log('Google profile is:', profile);
             //  First let's check if we already have this user in our DB
             knex('users')
-                .select('id')
+                .select('user_id')
                 .where({ github_id: profile.id })
                 .then((user) => {
                     if (user.length) {
@@ -142,15 +145,15 @@ passport.use(
     })
 );
 passport.serializeUser((user, done) => {
-    console.log('serializeUser (user object):', user);
-    done(null, user.id);
+    console.log('serializeUser (user object):', user.user_id);
+    done(null, user.user_id);
 });
-passport.deserializeUser((userId, done) => {
-    console.log('deserializeUser (user id):', userId);
+passport.deserializeUser((user, done) => {
+    console.log('deserializeUser (user id):', user);
 
     // Query user information from the database for currently authenticated user
     knex('users')
-        .where({ id: userId })
+        .where({ user_id: user })
         .then((user) => {
             // Remember that knex will return an array of records, so we need to get a single record from it
             console.log('req.user:', user[0]);

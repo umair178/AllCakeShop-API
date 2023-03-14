@@ -16,17 +16,18 @@ router.get(
     }
   );
 router.get('/profile', (req,res)=>{
+
   if (req.user===undefined){
     return res.status(401).json({message: 'Unathorized'})
   } else {
     return res.status(200).json(req.user)
-    console.log(req.user)
+    console.log('user object is:', req.user)
   }
 });
 router.get('/logout', (req,res)=>{
   req.logout((error)=>{
     if (error){
-      return res.status(500).json({message: 'Server error, try again later'})
+      return res.status(500).json({message: 'Server error, try again later', err:error})
     }
   });
   req.redirect(process.env.CLIENT_URL)
