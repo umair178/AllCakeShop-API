@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const cors = require('cors');
 const helmet = require('helmet');
 const cakesRoutes = require('./Routes/cakes');
+const cartRoutes = require('./Routes/cart');
 require('dotenv').config();
 const knex = require('knex')(require('./knexfile'));
 app.use(express.json());
@@ -14,73 +15,15 @@ app.use(express.urlencoded({extended: false}));
 
 
 
-                                  //Auth code starts here
+app.use('/', cakesRoutes);
+
+app.use('/', cartRoutes);
 
 
-// const jwt = require('jsonwebtoken');
-// const users = {
-//     anvit: {
-//         name: 'Anvit',
-//         password: 'test'
-//     },
-//     umair: {
-//         name: 'Umair Khan',
-//         password: 'test'
-//     }
-// };
-// const authorize = (req, res, next) => {
-//     if (!req.headers.authorization) {
-//         return res.status(401).json({ message: 'No token found' })
-//     }
-//     const authTokenArray = req.headers.authorization.split(' ');
-//     if (authTokenArray[0].toLowerCase() !== 'bearer' && authTokenArray.length !== 2) {
-//         return res.status(401).json({ message: 'Invalid token' });
-//     }
-
-//     jwt.verify(authTokenArray[1], process.env.JWT_SECRET, (err, decoded) => {
-//         if (err) {
-//             return res.status(401).json({ message: 'The token is expired or invalid' });
-//         }
-//         req.jwtPayload = decoded;
-//         next();
-//     });
-// };
-// app.post('/login', (req, res) => {
-//     const { username, password } = req.body;
-//     console.log(req.body.username)
-
-//     const user = users[username];
-//     console.log(user)
-
-//     if (!user) {
-//         return res.status(403).json({ message: "This user doesn't exist. Please sign up!" });
-//     }
-//     if (user.password === password) {
-//         // Generate a token and send it back
-//         const token = jwt.sign({
-//             name: user.name,
-//             username: username,
-//             loginTime: Date.now()
-//         }, process.env.JWT_SECRET, { expiresIn: '3m' });
-//         return res.status(200).json({ token });
-//     } else {
-//         return res.status(403).json({ message: "Invalid username or password" });
-//     }
-// });
-
-// app.get('/profile', authorize, (req, res) => {
-//     res.json({
-//         tokenInfo: req.jwtPayload,
-//         sensitiveInformation: {
-//             secret: 'Old school RPGs, terrible terrible puns, Lo-fi beats to relax/study to'
-//         }
-//     });s
-// })
-
-                                //Auth code ends here
 
 
-                                //passport code starts here
+
+//passport code starts here
 
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
@@ -92,19 +35,19 @@ app.use(
         origin: true,
         credentials: true,
     })
-);
-app.use(
-    expressSession({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
-    })
-);
-
-app.use(passport.session());
-
-passport.use(
-    new GitHubStrategy(
+    );
+    app.use(
+        expressSession({
+            secret: process.env.SESSION_SECRET,
+            resave: false,
+            saveUninitialized: true,
+        })
+        );
+        
+        app.use(passport.session());
+        
+        passport.use(
+            new GitHubStrategy(
         {
             clientID: process.env.GITHUB_CLIENT_ID,
             clientSecret: process.env.GITHUB_CLIENT_SECRET,
@@ -124,8 +67,8 @@ passport.use(
                     } else {
                         // If user isn't found, we create a record
                         knex('users')
-                            .insert({
-                                github_id: profile.id,
+                        .insert({
+                            github_id: profile.id,
                                 avatar_url: profile._json.avatar_url,
                                 username: profile.username,
                             })
@@ -137,12 +80,12 @@ passport.use(
                             .catch((err) => {
                                 console.log('Error creating a user', err);
                             });
-                    }
+                        }
                 })
                 .catch((err) => {
                     console.log('Error fetching a user', err);
                 });
-    })
+            })
 );
 passport.serializeUser((user, done) => {
     console.log('serializeUser (user object):', user.user_id);
@@ -169,12 +112,73 @@ passport.deserializeUser((user, done) => {
 const authRoutes = require('./Routes/auth');
 app.use('/auth', authRoutes);
                                 //passport code ends here
-
-app.use('/', cakesRoutes);
-
-const cartRoutes = require('./Routes/cart');
-app.use('/', cartRoutes);
-
-app.listen(PORT, ()=>{
+                                
+                                app.listen(PORT, ()=>{
     console.log(`listening on http://localhost:${PORT}`)
 });
+
+
+    //Auth code starts here
+    
+    
+    // const jwt = require('jsonwebtoken');
+    // const users = {
+    //     anvit: {
+    //         name: 'Anvit',
+    //         password: 'test'
+    //     },
+    //     umair: {
+    //         name: 'Umair Khan',
+    //         password: 'test'
+    //     }
+    // };
+    // const authorize = (req, res, next) => {
+    //     if (!req.headers.authorization) {
+    //         return res.status(401).json({ message: 'No token found' })
+    //     }
+    //     const authTokenArray = req.headers.authorization.split(' ');
+    //     if (authTokenArray[0].toLowerCase() !== 'bearer' && authTokenArray.length !== 2) {
+    //         return res.status(401).json({ message: 'Invalid token' });
+    //     }
+    
+    //     jwt.verify(authTokenArray[1], process.env.JWT_SECRET, (err, decoded) => {
+    //         if (err) {
+    //             return res.status(401).json({ message: 'The token is expired or invalid' });
+    //         }
+    //         req.jwtPayload = decoded;
+    //         next();
+    //     });
+    // };
+    // app.post('/login', (req, res) => {
+    //     const { username, password } = req.body;
+    //     console.log(req.body.username)
+    
+    //     const user = users[username];
+    //     console.log(user)
+    
+    //     if (!user) {
+    //         return res.status(403).json({ message: "This user doesn't exist. Please sign up!" });
+    //     }
+    //     if (user.password === password) {
+    //         // Generate a token and send it back
+    //         const token = jwt.sign({
+    //             name: user.name,
+    //             username: username,
+    //             loginTime: Date.now()
+    //         }, process.env.JWT_SECRET, { expiresIn: '3m' });
+    //         return res.status(200).json({ token });
+    //     } else {
+    //         return res.status(403).json({ message: "Invalid username or password" });
+    //     }
+    // });
+    
+    // app.get('/profile', authorize, (req, res) => {
+    //     res.json({
+    //         tokenInfo: req.jwtPayload,
+    //         sensitiveInformation: {
+    //             secret: 'Old school RPGs, terrible terrible puns, Lo-fi beats to relax/study to'
+    //         }
+    //     });s
+    // })
+    
+    //Auth code ends here
