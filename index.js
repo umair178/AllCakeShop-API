@@ -10,14 +10,13 @@ require('dotenv').config();
 const knex = require('knex')(require('./knexfile'));
 app.use(express.json());
 app.use(cors());
-app.use(express.static('./Public/images'))
+app.use(express.static('./Public/images'));
 app.use(express.urlencoded({extended: false}));
-
 
 
 app.use('/', cakesRoutes);
 
-app.use('/', cartRoutes);
+// app.use('/', cartRoutes);
 
 
 
@@ -112,8 +111,15 @@ passport.deserializeUser((user, done) => {
 const authRoutes = require('./Routes/auth');
 app.use('/auth', authRoutes);
                                 //passport code ends here
-                                
-                                app.listen(PORT, ()=>{
+                                //Stripe code starts here
+
+const stripesecretkey = process.env.STRIPE_PRIVATE_KEY
+const stripe = require('stripe')(stripesecretkey);
+const stripeRoutes = require('./Routes/stripe');
+app.use('/', stripeRoutes);
+
+
+app.listen(PORT, () => {
     console.log(`listening on http://localhost:${PORT}`)
 });
 
