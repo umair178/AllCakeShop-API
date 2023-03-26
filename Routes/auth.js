@@ -4,10 +4,10 @@ const app = express();
 const passport = require('passport');
 require('dotenv').config();
 
-router.get('/github', passport.authenticate('github'));
+router.get('/google', passport.authenticate('google'));
 router.get(
-    '/github/callback',
-    passport.authenticate('github', {
+    '/google/callback',
+    passport.authenticate('google', {
       failureRedirect: `${process.env.CLIENT_URL}/auth-fail`,
     }),
     (_req, res) => {
@@ -16,12 +16,12 @@ router.get(
     }
   );
 router.get('/profile', (req,res)=>{
-
+  console.log('request user is here:', req.user)
   if (req.user===undefined){
     return res.status(401).json({message: 'Unathorized'})
   } else {
     return res.status(200).json(req.user)
-    console.log('user object is:', req.user)
+    // console.log('user object is:', req.user)
   }
 });
 router.get('/logout', (req,res)=>{
@@ -30,7 +30,7 @@ router.get('/logout', (req,res)=>{
       return res.status(500).json({message: 'Server error, try again later', err:error})
     }
   });
-  req.redirect(process.env.CLIENT_URL)
+  res.redirect((process.env.CLIENT_URL))
 });
 
 

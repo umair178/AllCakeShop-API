@@ -23,22 +23,21 @@ router.get('/cart', (req, res) => {
         .select('*')
         .from('cart')
         .then((cartcakes) => {
-            const cakeIds = cartcakes.map((cake)=>cake.cake_id)
+            const cakeIds = cartcakes.map((cake) => cake.cake_id)
             return knex
-            .select('*')
-            .from('cakes')
-            .whereIn('cake_id', cakeIds)
+                .select('*')
+                .from('cakes')
+                .whereIn('cake_id', cakeIds)
         })
-        .then((cakes)=>{
+        .then((cakes) => {
             res.json(cakes)
         })
-        .catch(e=>{
+        .catch(e => {
             console.log('eror is:', e)
             res.send('internal error')
         })
 });
 router.get('/:cakeId', (req, res) => {
-    console.log(req.url)
     knex
         .select('*')
         .from('cakes')
@@ -63,6 +62,16 @@ router.post('/cart', (req, res) => {
             console.log('error inserting cart data in knex is:', e)
         })
 });
+router.delete('/cart', (req, res) => {
+    const { cake } = req.body
+    knex('cart')
+        .where({ cake_id: cake.cake_id })
+        .del()
+        .then(cake => {
+            res.json(cake)
+        })
+});
+
 
 
 module.exports = router

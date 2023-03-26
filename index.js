@@ -29,6 +29,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const expressSession = require('express-session');
 app.use(helmet());
+
 app.use(
     cors({
         origin: true,
@@ -46,14 +47,15 @@ app.use(
         app.use(passport.session());
         
         passport.use(
-            new GitHubStrategy(
+            new GoogleStrategy(
         {
-            clientID: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET,
-            callbackURL: process.env.GITHUB_CALLBACK_URL,
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: process.env.GOOGLE_CALLBACK_URL,
+            scope:['profile', 'email']
         },
         (_accessToken, _refreshToken, profile, done)=>{
-            console.log('Google profile is:', profile);
+            // console.log('Google profile is:', profile);
             //  First let's check if we already have this user in our DB
             knex('users')
                 .select('user_id')
@@ -62,19 +64,19 @@ app.use(
                     if (user.length) {
                         // If user is found, pass the user object to serialize function
                         done(null, user[0]);
-                        console.log('user object is:,', user)
+                        console.log('user object is:,', user[0])
                     } else {
                         // If user isn't found, we create a record
                         knex('users')
                         .insert({
                             github_id: profile.id,
-                                avatar_url: profile._json.avatar_url,
-                                username: profile.username,
+                                avatar_url: profile._json.picture,
+                                username: profile.displayName,
                             })
                             .then((userId) => {
                                 // Pass the user object to serialize function
                                 done(null, { id: userId[0] });
-                                console.log(userId)
+                                console.log('userId is:', userId)
                             })
                             .catch((err) => {
                                 console.log('Error creating a user', err);
@@ -86,6 +88,71 @@ app.use(
                 });
             })
 );
+
+
+
+
+
+
+
+
+// app.use(
+//     cors({
+//         origin: true,
+//         credentials: true,
+//     })
+//     );
+//     app.use(
+//         expressSession({
+//             secret: process.env.SESSION_SECRET,
+//             resave: false,
+//             saveUninitialized: true,
+//         })
+//         );
+        
+//         app.use(passport.session());
+        
+//         passport.use(
+//             new GitHubStrategy(
+//         {
+//             clientID: process.env.GITHUB_CLIENT_ID,
+//             clientSecret: process.env.GITHUB_CLIENT_SECRET,
+//             callbackURL: process.env.GITHUB_CALLBACK_URL,
+//         },
+//         (_accessToken, _refreshToken, profile, done)=>{
+//             console.log('Google profile is:', profile);
+//             //  First let's check if we already have this user in our DB
+//             knex('users')
+//                 .select('user_id')
+//                 .where({ github_id: profile.id })
+//                 .then((user) => {
+//                     if (user.length) {
+//                         // If user is found, pass the user object to serialize function
+//                         done(null, user[0]);
+//                         console.log('user object is:,', user[0])
+//                     } else {
+//                         // If user isn't found, we create a record
+//                         knex('users')
+//                         .insert({
+//                             github_id: profile.id,
+//                                 avatar_url: profile._json.avatar_url,
+//                                 username: profile.username,
+//                             })
+//                             .then((userId) => {
+//                                 // Pass the user object to serialize function
+//                                 done(null, { id: userId[0] });
+//                                 console.log(userId)
+//                             })
+//                             .catch((err) => {
+//                                 console.log('Error creating a user', err);
+//                             });
+//                         }
+//                 })
+//                 .catch((err) => {
+//                     console.log('Error fetching a user', err);
+//                 });
+//             })
+// );
 passport.serializeUser((user, done) => {
     console.log('serializeUser (user object):', user.user_id);
     done(null, user.user_id);
@@ -98,7 +165,7 @@ passport.deserializeUser((user, done) => {
         .where({ user_id: user })
         .then((user) => {
             // Remember that knex will return an array of records, so we need to get a single record from it
-            console.log('req.user:', user[0]);
+            console.log('req.user is:', user);
 
             // The full user object will be attached to request object as `req.user`
             done(null, user[0]);

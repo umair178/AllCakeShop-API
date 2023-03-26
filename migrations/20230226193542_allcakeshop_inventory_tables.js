@@ -5,11 +5,16 @@ exports.up = function (knex) {
             table.increments('cake_id').primary();
             table.string('occasion').notNullable();
             table.string('image_url').notNullable();
+            table.integer('price').notNullable();
+            table.string('shipped').defaultTo('No');
+            table.string('size').defaultTo('Medium');
+            table.string('servings').defaultTo('(8 - 10 Servings)');
+            table.string('style').defaultTo('Fresh Floral');
             table.timestamp('updated_at').defaultTo(knex.fn.now());
         })
         .createTable('users', (table) => {
             table.increments('user_id').primary();
-            table.integer('github_id').notNullable();
+            table.string('github_id', 255).notNullable();
             table.string('avatar_url').notNullable();
             table.string('username').notNullable();
             table.timestamp('updated_at').defaultTo(knex.fn.now());
@@ -18,6 +23,7 @@ exports.up = function (knex) {
             table.increments('order_id').primary();
             table.integer('user_id').notNullable();
             table.integer('cake_id').unsigned().notNullable();
+            table.string('shipped').defaultTo('No');
             table.timestamp('created_at').defaultTo(knex.fn.now());
             table
                 .foreign('cake_id')
@@ -31,5 +37,5 @@ exports.up = function (knex) {
 
 
 exports.down = function(knex) {
-    return knex.schema.dropTable('categories').dropTable('users').dropTable('cart');
+    return knex.schema.dropTable('cakes').dropTable('users').dropTable('cart');
 };

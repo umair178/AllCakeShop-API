@@ -14,18 +14,39 @@ app.use('/', (req, _res, next) => {
 const stripesecretkey = process.env.STRIPE_PRIVATE_KEY
 const stripe = require('stripe')(stripesecretkey);
 const client_url = process.env.CLIENT_URL;
-const storeItems = new Map([
-    [1, { priceInCents: 10000, name: "shirt" }],
-    [2, { priceInCents: 20000, name: "jeans" }],
-]);
-console.log('storeItems:', storeItems)
+// const storeItems = new Map([
+//     [1, { priceInCents: 10000, name: "shirt" }],
+//     [2, { priceInCents: 20000, name: "jeans" }],
+//     [3, { priceInCents: 20000, name: "jeannns" }],
+// ]);
+const storeItemsPromise = knex
+    .select('*')
+    .from('cart')
+    .then(cartcakes => {
+        const cakeIds = cartcakes.map((cake) => cake.cake_id)
+        return knex
+            .select('*')
+            .from('cakes')
+            .whereIn('cake_id', cakeIds)
+    })
+    .then(cakes => {
+        return (
+            cakes.map(cake => {
+                return (
+                    [cake.cake_id, { priceInCents: cake.price, name: cake.occasion }]
+                )
+            })
+        )
 
-router.post('/create-checkout-session', (req, res)=>{
+    });
+
+
+router.post('/create-checkout-session', async(req, res)=>{
     const {items} = req.body
-    console.log(items)
     if (items.length === 0) {
         return res.status(400).send('No items in cart.')
     }
+    const storeItems = new Map(await storeItemsPromise);
     const session = stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
