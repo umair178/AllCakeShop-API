@@ -8,7 +8,7 @@ require('dotenv').config();
 
 
 app.use('/', (req, _res, next) => {
-    console.log(req.url)
+    // console.log(req.url)
     next();
 });
 const stripesecretkey = process.env.STRIPE_PRIVATE_KEY
@@ -69,7 +69,15 @@ router.post('/create-checkout-session', async(req, res)=>{
     })
     .then(session=>{
         res.json({url: session.url});
+        // console.log('url obj is:',{url: session.url} )
+        // knex('cart')
+        // .del()
+        // .then(()=>{
+        //     console.log('cart has been deleted')
+        // });
+
     })
+    
     .catch(e=>{
         console.log('error creating checkout session is:', e);
         res.status(500).send('Error creating checkout session');
