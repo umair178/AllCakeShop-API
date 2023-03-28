@@ -4,7 +4,6 @@ exports.index = (_req, res) => {
     knex('cakes')
         // .select('id', 'occasion')
         .then((data) => {
-            console.log('cake data is:' ,data)
             res.status(200).json(data);
         })
         .catch((err) => res.status(400).send(`Error retrieving Warehouses ${err}`));
