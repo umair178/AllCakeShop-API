@@ -58,13 +58,13 @@ app.use(
             // console.log('Google profile is:', profile);
             //  First let's check if we already have this user in our DB
             knex('users')
-                .select('user_id')
+                .select('id')
                 .where({ github_id: profile.id })
                 .then((user) => {
                     if (user.length) {
                         // If user is found, pass the user object to serialize function
                         done(null, user[0]);
-                        console.log('user object is:,', user[0])
+                        console.log('user object is (on index.js):,', user[0])
                     } else {
                         // If user isn't found, we create a record
                         knex('users')
@@ -76,7 +76,7 @@ app.use(
                             .then((userId) => {
                                 // Pass the user object to serialize function
                                 done(null, { id: userId[0] });
-                                console.log('userId is:', userId)
+                                console.log('userId is (index.js):', userId)
                             })
                             .catch((err) => {
                                 console.log('Error creating a user', err);
@@ -149,18 +149,18 @@ app.use(
 //             })
 // );
 passport.serializeUser((user, done) => {
-    console.log('serializeUser (user object):', user.user_id);
-    done(null, user.user_id);
+    console.log('serializeUser (user object) on index.js is:', user);
+    done(null, user.id);
 });
 passport.deserializeUser((user, done) => {
-    console.log('deserializeUser (user id):', user);
+    console.log('deserializeUser (user id) on index,js is:', user);
 
     // Query user information from the database for currently authenticated user
     knex('users')
-        .where({ user_id: user })
+        .where({ id: user })
         .then((user) => {
             // Remember that knex will return an array of records, so we need to get a single record from it
-            console.log('req.user is:', user);
+            console.log('req.user on index.js is:', user);
 
             // The full user object will be attached to request object as `req.user`
             done(null, user[0]);

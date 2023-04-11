@@ -16,7 +16,7 @@ router.get(
     }
   );
 router.get('/profile', (req,res)=>{
-  console.log('request user is here:', req.user)
+  // console.log('request user is here on auth.js:', req.user)
   if (req.user===undefined){
     return res.status(401).json({message: 'Unathorized'})
   } else {

@@ -13,7 +13,7 @@ exports.up = function (knex) {
             table.timestamp('updated_at').defaultTo(knex.fn.now());
         })
         .createTable('users', (table) => {
-            table.increments('user_id').primary();
+            table.increments('id').primary();
             table.string('github_id', 255).notNullable();
             table.string('avatar_url').notNullable();
             table.string('username').notNullable();
