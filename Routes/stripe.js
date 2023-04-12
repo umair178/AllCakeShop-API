@@ -14,22 +14,21 @@ app.use('/', (req, _res, next) => {
 const stripesecretkey = process.env.STRIPE_PRIVATE_KEY
 const stripe = require('stripe')(stripesecretkey);
 const client_url = process.env.CLIENT_URL;
-// const storeItems = new Map([
-//     [1, { priceInCents: 10000, name: "shirt" }],
-//     [2, { priceInCents: 20000, name: "jeans" }],
-//     [3, { priceInCents: 20000, name: "jeannns" }],
-// ]);
-const storeItemsPromise = knex
+
+const storeItemsPromise = ()=>{
+    return knex
     .select('*')
     .from('cart')
     .then(cartcakes => {
         const cakeIds = cartcakes.map((cake) => cake.cake_id)
+        console.log('cakeIds are:', cakeIds)
         return knex
             .select('*')
             .from('cakes')
             .whereIn('cake_id', cakeIds)
     })
     .then(cakes => {
+        console.log('cakes are:', cakes)
         return (
             cakes.map(cake => {
                 return (
@@ -38,7 +37,8 @@ const storeItemsPromise = knex
             })
         )
 
-    });
+    })
+};
 
 
 router.post('/create-checkout-session', async(req, res)=>{
@@ -46,12 +46,14 @@ router.post('/create-checkout-session', async(req, res)=>{
     if (items.length === 0) {
         return res.status(400).send('No items in cart.')
     }
-    const storeItems = new Map(await storeItemsPromise);
+    const storeItems = new Map(await storeItemsPromise());
     const session = stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
         line_items: items.map((item)=>{
+            console.log('items array is:', items)
             const storeItem = storeItems.get(item.id)
+            console.log('storeItems are:', storeItems)
             console.log(`item.id: ${item.id}, storeItem:`, storeItem)
             return(
                 {
@@ -67,14 +69,10 @@ router.post('/create-checkout-session', async(req, res)=>{
         success_url: `${client_url}?success=true`,
         cancel_url: `${client_url}?canceled=true`,
     })
-    .then(session=>{
+    .then(async(session)=>{
+        const cartItemIds = items.map((item) => item.id);
+        await knex('cart').whereIn('cake_id', cartItemIds).del();
         res.json({url: session.url});
-        // console.log('url obj is:',{url: session.url} )
-        // knex('cart')
-        // .del()
-        // .then(()=>{
-        //     console.log('cart has been deleted')
-        // });
 
     })
     

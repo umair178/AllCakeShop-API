@@ -5,8 +5,8 @@ const url = require('url')
 const { v4: uuidv4 } = require('uuid');
 const categoriesController = require('../controllers/categoriescontroller');
 const cartController = require('../controllers/cartcontroller');
-
 const knex = require('knex')(require('../knexfile'));
+const passport = require('passport');
 
 
 app.use('/', (req, _res, next) => {
@@ -18,6 +18,11 @@ router
     .route('/cakes')
     .get(categoriesController.index);
 
+router.post('/getuserid', (req,res)=>{
+    const {user_id} = req.body
+    console.log('user id is:',user_id)
+    res.json(user_id)
+})
 router.get('/cart', (req, res) => {
     knex
         .select('*')

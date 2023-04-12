@@ -20,8 +20,8 @@ router.get('/profile', (req,res)=>{
   if (req.user===undefined){
     return res.status(401).json({message: 'Unathorized'})
   } else {
+    console.log('user object is:', req.user)
     return res.status(200).json(req.user)
-    // console.log('user object is:', req.user)
   }
 });
 router.get('/logout', (req,res)=>{
